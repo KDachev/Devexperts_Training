@@ -29,7 +29,7 @@ public class UniqueEventsQueue<T> {
     public T get () throws InterruptedException {
         synchronized(uniqueEventsQueue) {
             if (uniqueEventsQueue.isEmpty()) {
-                System.out.println("Thread goes to sleep");
+                System.out.println("Thread is blocked until queue isn't empty");
                 uniqueEventsQueue.wait();
             }
             return uniqueEventsQueue.poll();
