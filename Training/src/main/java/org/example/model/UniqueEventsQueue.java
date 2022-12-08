@@ -32,7 +32,7 @@ public class UniqueEventsQueue<T> {
             }
             return uniqueEventsQueue.poll();
         }
-}
+    }
 
     @Override
     public String toString() {
