@@ -8,6 +8,9 @@ public class Main {
 
         System.out.println("Get first element of empty queue: " + ueq.get());
         ueq.add(1);
+        ueq.add(1);
+        ueq.add(1);
+        ueq.add(1);
         ueq.add(2);
         ueq.add(3);
         System.out.printf("Adding elements 1, 2, 3: \n%s\n", ueq);

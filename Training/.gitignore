@@ -37,6 +37,7 @@
 .idea/encodings.xml
 .idea/.gitignore
 .idea/misc.xml
+.idea/vcs.xml
 .idea/jarRepositories.xml
 .idea/modules.xml
 .idea/*.iml

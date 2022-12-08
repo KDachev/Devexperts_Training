@@ -1,17 +1,22 @@
 package org.example.model;
 
-import java.util.ArrayDeque;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Queue;
+import java.util.concurrent.ConcurrentLinkedQueue;
 
 public class UniqueEventsQueue<T> {
     private Queue<T> uniqueEventsQueue;
+    private Map<Integer, T> uniqueElementsMap;
 
     public UniqueEventsQueue(){
-        uniqueEventsQueue = new ArrayDeque<>();
+        uniqueEventsQueue = new ConcurrentLinkedQueue<>();
+        uniqueElementsMap = new HashMap<>();
     }
 
-    public void add(T element){
-        if(!uniqueEventsQueue.contains(element)){
+    public synchronized void add(T element){
+        if (!uniqueElementsMap.containsKey(element.hashCode())) {
+            uniqueElementsMap.put(element.hashCode(), element);
             uniqueEventsQueue.add(element);
         }
     }
