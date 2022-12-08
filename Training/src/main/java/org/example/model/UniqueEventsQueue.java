@@ -8,8 +8,6 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 public class UniqueEventsQueue<T> {
     private final Queue<T> uniqueEventsQueue;
     private final Map<Integer, T> uniqueElementsMap;
-    private final Object getLock = new Object();
-    private final Object addLock = new Object();
 
     public UniqueEventsQueue(){
         uniqueEventsQueue = new ConcurrentLinkedQueue<>();
