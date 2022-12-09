@@ -1,37 +1,45 @@
 package org.example.model;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 public class UniqueEventsQueue<T> {
+    private static final Logger logger = LogManager.getLogger(UniqueEventsQueue.class);
     private final Queue<T> uniqueEventsQueue;
-    private final Map<Integer, T> uniqueElementsMap;
+    private final Map<Integer, T> uniqueEventsMap;
 
     public UniqueEventsQueue(){
         uniqueEventsQueue = new ConcurrentLinkedQueue<>();
-        uniqueElementsMap = new HashMap<>();
+        uniqueEventsMap = new HashMap<>();
     }
 
     public void add(T element){
         synchronized (uniqueEventsQueue) {
-            if (!uniqueElementsMap.containsKey(element.hashCode())) {
-                uniqueElementsMap.put(element.hashCode(), element);
+            if (!uniqueEventsMap.containsKey(element.hashCode())) {
+                uniqueEventsMap.put(element.hashCode(), element);
                 uniqueEventsQueue.add(element);
                 uniqueEventsQueue.notify();
             }
         }
     }
 
-    public T get () throws InterruptedException {
+    public T get () {
         synchronized(uniqueEventsQueue) {
-            if (uniqueEventsQueue.isEmpty()) {
-                System.out.println("Thread is blocked until queue isn't empty");
-                uniqueEventsQueue.wait();
+            while (uniqueEventsQueue.isEmpty()) {
+                try {
+                    System.out.println("Thread is blocked until queue isn't empty");
+                    uniqueEventsQueue.wait();
+                } catch (InterruptedException e) {
+                    logger.warn("A thread was interrupted with message: " + e.getMessage());
+                }
             }
             T answer = uniqueEventsQueue.poll();
-            uniqueElementsMap.remove(answer.hashCode());
+            uniqueEventsMap.remove(answer.hashCode());
             return answer;
         }
     }
