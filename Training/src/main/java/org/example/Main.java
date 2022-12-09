@@ -15,6 +15,8 @@ public class Main {
             System.out.println("Get first element of empty queue: ");
             try {
                 System.out.println("Thread 1 pulled a value from the queue: " + ueq.get());
+                System.out.println("Thread 1 pulled a value from the queue: " + ueq.get());
+                System.out.println("Thread 1 pulled a value from the queue: " + ueq.get());
             } catch (InterruptedException e) {
                 logger.warn("A thread was interrupted with message: " + e.getMessage());
             }
@@ -29,8 +31,8 @@ public class Main {
                 System.out.println("Adding element 2 to queue" );
                 ueq.add(2);
                 Thread.sleep(200);
-                System.out.println("Adding element 3 to queue" );
-                ueq.add(3);
+                System.out.println("Adding element 1 to queue" );
+                ueq.add(1);
             } catch (InterruptedException e){
                 logger.warn("A thread was interrupted with message: " + e.getMessage());
             }

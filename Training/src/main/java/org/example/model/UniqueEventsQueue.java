@@ -30,7 +30,9 @@ public class UniqueEventsQueue<T> {
                 System.out.println("Thread is blocked until queue isn't empty");
                 uniqueEventsQueue.wait();
             }
-            return uniqueEventsQueue.poll();
+            T answer = uniqueEventsQueue.poll();
+            uniqueElementsMap.remove(answer.hashCode());
+            return answer;
         }
     }
 
