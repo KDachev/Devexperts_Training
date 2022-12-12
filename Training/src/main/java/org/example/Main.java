@@ -21,15 +21,17 @@ public class Main {
         Thread thread2 = new Thread(() -> {
             try {
                 Thread.sleep(5000);
+                System.out.println("Adding element 1 to queue" );
+                ueq.add(1);
+                Thread.sleep(200);
+                System.out.println("Adding element 2 to queue" );
+                ueq.add(2);
+                Thread.sleep(200);
+                System.out.println("Adding element 1 to queue" );
+                ueq.add(1);
             } catch (InterruptedException e) {
                 logger.warn("A thread was interrupted with message: " + e.getMessage());
             }
-            System.out.println("Adding element 1 to queue" );
-            ueq.add(1);
-            System.out.println("Adding element 2 to queue" );
-            ueq.add(2);
-            System.out.println("Adding element 1 to queue" );
-            ueq.add(1);
         });
 
         thread1.start();

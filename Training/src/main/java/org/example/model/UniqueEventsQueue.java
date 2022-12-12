@@ -3,26 +3,25 @@ package org.example.model;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.Set;
+import java.util.HashSet;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 public class UniqueEventsQueue<T> {
     private static final Logger logger = LogManager.getLogger(UniqueEventsQueue.class);
     private final Queue<T> uniqueEventsQueue;
-    private final Map<Integer, T> uniqueEventsMap;
+    private final Set<T> uniqueEventsSet;
 
     public UniqueEventsQueue(){
         uniqueEventsQueue = new ConcurrentLinkedQueue<>();
-        uniqueEventsMap = new HashMap<>();
+        uniqueEventsSet = new HashSet<>();
     }
 
-    public void add(T element){
+    public void add(T event){
         synchronized (uniqueEventsQueue) {
-            if (!uniqueEventsMap.containsKey(element.hashCode())) {
-                uniqueEventsMap.put(element.hashCode(), element);
-                uniqueEventsQueue.add(element);
+            if (uniqueEventsSet.add(event)) {
+                uniqueEventsQueue.add(event);
                 uniqueEventsQueue.notify();
             }
         }
@@ -39,7 +38,7 @@ public class UniqueEventsQueue<T> {
                 }
             }
             T answer = uniqueEventsQueue.poll();
-            uniqueEventsMap.remove(answer.hashCode());
+            uniqueEventsSet.remove(answer);
             return answer;
         }
     }
