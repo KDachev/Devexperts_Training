@@ -26,14 +26,16 @@
             <version>2.19.0</version>
         </dependency>
         <dependency>
-            <groupId>com.github.davidmoten</groupId>
-            <artifactId>big-sorter</artifactId>
-            <version>0.1.24</version>
+            <groupId>com.opencsv</groupId>
+            <artifactId>opencsv</artifactId>
+            <version>5.7.1</version>
         </dependency>
+
         <dependency>
-            <groupId>org.apache.commons</groupId>
-            <artifactId>commons-csv</artifactId>
-            <version>1.9.0</version>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+            <version>1.18.24</version>
+            <scope>provided</scope>
         </dependency>
 
     </dependencies>

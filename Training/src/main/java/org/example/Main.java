@@ -45,10 +45,6 @@ public class Main {
         File outputFile = new File("C:\\Users\\kdachev\\IdeaProjects\\Devexperts_Training\\Training\\result.csv");
 
         CSVSorterService csvSorterService = new CSVSorterService();
-        try {
-            csvSorterService.sortIntegers(inputFile, outputFile, "count");
-        } catch (IOException e) {
-            logger.error("There was an error with message: " + e.getMessage());
-        }
+        csvSorterService.sort(inputFile, outputFile, "count");
     }
 }
