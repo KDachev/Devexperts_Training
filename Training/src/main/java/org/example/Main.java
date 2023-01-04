@@ -45,6 +45,7 @@ public class Main {
         File outputFile = new File("C:\\Users\\kdachev\\IdeaProjects\\Devexperts_Training\\Training\\result.csv");
 
         CSVSorterService csvSorterService = new CSVSorterService();
-        csvSorterService.sort(inputFile, outputFile, "count");
+//        csvSorterService.sort(inputFile, outputFile, "count");
+        csvSorterService.sort2();
     }
 }
