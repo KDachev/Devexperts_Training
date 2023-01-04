@@ -46,6 +46,6 @@ public class Main {
 
         CSVSorterService csvSorterService = new CSVSorterService();
 //        csvSorterService.sort(inputFile, outputFile, "count");
-        csvSorterService.sort2();
+        csvSorterService.sort(inputFile, outputFile);
     }
 }
