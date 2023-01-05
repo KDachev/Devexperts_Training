@@ -98,6 +98,13 @@ public class CSVSorterService {
                 firstStudentFromChunks.add(student);
             }
 
+            writer.write(header[0] + CSV_SEPARATOR
+                    + header[1] + CSV_SEPARATOR
+                    + header[2] + CSV_SEPARATOR
+                    + header[3] + CSV_SEPARATOR
+                    + header[4] + CSV_SEPARATOR
+                    + header[5] + "\n");
+
             for (int i = 0; i < linesRead; i++) {
                 Long minValue = Long.MAX_VALUE;
                 int readNext = 0;
@@ -127,9 +134,11 @@ public class CSVSorterService {
                     firstStudentFromChunks.set(readNext, new Student(year, age, ethnic, sex, area, count));
                 }
                 else {
+                    chunkReaders.get(readNext).close();
                     chunkReaders.remove(readNext);
                     firstStudentFromChunks.remove(readNext);
-                    chunks.get(readNext).delete();
+                    if(chunks.get(readNext).delete())
+                        chunks.remove(readNext);
                 }
             }
         } catch (FileNotFoundException e) {
