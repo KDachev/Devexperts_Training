@@ -23,18 +23,11 @@ public class CSVSorterService {
             List<CSVReader> chunkReaders = new ArrayList<>();
             List<Student> students = new ArrayList<>();
             int chunkIndex = 0;
+            long linesRead = 0L;
             String[] header = csvReader.readNext();
-            Long linesRead = 0L;
 
             while (csvReader.peek() != null) {
-                String[] line = csvReader.readNext();
-                String year = line[0];
-                int age = Integer.parseInt(line[1]);
-                String ethnic = line[2];
-                String sex = line[3];
-                Long area = Long.parseLong(line[4]);
-                Long count = Long.parseLong(line[5]);
-                Student student = new Student(year, age, ethnic, sex, area, count);
+                Student student = new Student(csvReader.readNext());
                 students.add(student);
 
                 linesRead++;
@@ -46,13 +39,7 @@ public class CSVSorterService {
                         students.sort(Comparator.comparing(Student::getCount));
 
                         for (Student sortedStudent : students) {
-                            chunkWriter.write(
-                                    sortedStudent.getYear() + CSV_SEPARATOR
-                                            + sortedStudent.getAge() + CSV_SEPARATOR
-                                            + sortedStudent.getEthnic() + CSV_SEPARATOR
-                                            + sortedStudent.getSex() + CSV_SEPARATOR
-                                            + sortedStudent.getAge() + CSV_SEPARATOR
-                                            + sortedStudent.getCount());
+                            writeToFile(chunkWriter, sortedStudent);
                             chunkWriter.newLine();
                         }
                     }
@@ -71,74 +58,47 @@ public class CSVSorterService {
                     students.sort(Comparator.comparing(Student::getCount));
 
                     for (Student sortedStudent : students) {
-                        chunkWriter.write(
-                                sortedStudent.getYear() + CSV_SEPARATOR
-                                        + sortedStudent.getAge() + CSV_SEPARATOR
-                                        + sortedStudent.getEthnic() + CSV_SEPARATOR
-                                        + sortedStudent.getSex() + CSV_SEPARATOR
-                                        + sortedStudent.getAge() + CSV_SEPARATOR
-                                        + sortedStudent.getCount());
+                        writeToFile(chunkWriter, sortedStudent);
                         chunkWriter.newLine();
                     }
                 }
             }
 
-            chunkReaders.add(new CSVReader(new FileReader(chunks.get(chunkIndex))));
+            for(int i = 0; i < header.length - 1; i++){
+                writer.write(header[i] + CSV_SEPARATOR);
+            }
+            writer.write(header[header.length - 1] + "\n");
 
+            chunkReaders.add(new CSVReader(new FileReader(chunks.get(chunkIndex))));
             List<Student> firstStudentFromChunks = new ArrayList<>();
             for (int y = 0; y < chunks.size(); y++) {
-                String[] line = chunkReaders.get(y).readNext();
-                String year = line[0];
-                int age = Integer.parseInt(line[1]);
-                String ethnic = line[2];
-                String sex = line[3];
-                Long area = Long.parseLong(line[4]);
-                Long count = Long.parseLong(line[5]);
-                Student student = new Student(year, age, ethnic, sex, area, count);
+                Student student = new Student(chunkReaders.get(y).readNext());
                 firstStudentFromChunks.add(student);
             }
 
-            writer.write(header[0] + CSV_SEPARATOR
-                    + header[1] + CSV_SEPARATOR
-                    + header[2] + CSV_SEPARATOR
-                    + header[3] + CSV_SEPARATOR
-                    + header[4] + CSV_SEPARATOR
-                    + header[5] + "\n");
-
             for (int i = 0; i < linesRead; i++) {
                 Long minValue = Long.MAX_VALUE;
-                int readNext = 0;
+                int writeNext = 0;
 
                 for (int j = 0; j < firstStudentFromChunks.size(); j++) {
                     if (firstStudentFromChunks.get(j).getCount() < minValue) {
-                        readNext = j;
+                        writeNext = j;
                         minValue = firstStudentFromChunks.get(j).getCount();
                     }
                 }
-                Student temp = firstStudentFromChunks.get(readNext);
-                writer.write(temp.getYear() + CSV_SEPARATOR
-                        + temp.getAge() + CSV_SEPARATOR
-                        + temp.getEthnic() + CSV_SEPARATOR
-                        + temp.getSex() + CSV_SEPARATOR
-                        + temp.getAge() + CSV_SEPARATOR
-                        + temp.getCount() + "\n");
+                Student temp = firstStudentFromChunks.get(writeNext);
+                writeToFile(writer, temp);
+                writer.write("\n");
 
-                if (chunkReaders.get(readNext).peek() != null) {
-                    String[] line = chunkReaders.get(readNext).readNext();
-                    String year = line[0];
-                    int age = Integer.parseInt(line[1]);
-                    String ethnic = line[2];
-                    String sex = line[3];
-                    Long area = Long.parseLong(line[4]);
-                    Long count = Long.parseLong(line[5]);
-                    firstStudentFromChunks.set(readNext, new Student(year, age, ethnic, sex, area, count));
+                if (chunkReaders.get(writeNext).peek() != null) {
+                    firstStudentFromChunks.set(writeNext, new Student(chunkReaders.get(writeNext).readNext()));
                 }
                 else {
-                    chunkReaders.get(readNext).close();
-                    chunkReaders.remove(readNext);
-                    firstStudentFromChunks.remove(readNext);
-                    if(chunks.get(readNext).delete())
-                        chunks.remove(readNext);
+                    chunkReaders.get(writeNext).close();
+                    chunkReaders.remove(writeNext);
+                    firstStudentFromChunks.remove(writeNext);
+                    if(chunks.get(writeNext).delete())
+                        chunks.remove(writeNext);
                 }
             }
         } catch (FileNotFoundException e) {
@@ -148,5 +108,14 @@ public class CSVSorterService {
         } catch (CsvValidationException e) {
             logger.error("There was an CsvValidationException with message " + e.getMessage());
         }
+    }
+
+    private void writeToFile(Writer writer, Student student) throws IOException {
+        writer.write(student.getYear() + CSV_SEPARATOR
+                + student.getAge() + CSV_SEPARATOR
+                + student.getEthnic() + CSV_SEPARATOR
+                + student.getSex() + CSV_SEPARATOR
+                + student.getAge() + CSV_SEPARATOR
+                + student.getCount());
     }
 }
