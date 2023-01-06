@@ -12,8 +12,11 @@ public class Main {
     private static final Logger logger = LogManager.getLogger(Main.class);
 
     public static void main(String[] args) {
+        final long startTime = System.nanoTime();
         //testUniqueEventsQueue();
-        testCsvSorterService();
+        testCsvSorterService("count", "area");
+        final long duration = System.nanoTime() - startTime;
+        System.out.println("The program ran for " + (double) duration/1000000000 + " seconds");
     }
 
     public static void testUniqueEventsQueue(){
@@ -46,11 +49,11 @@ public class Main {
         thread2.start();
     }
 
-    public static void testCsvSorterService(){
+    public static void testCsvSorterService(String... compareOnFields){
         File inputFile = new File("C:\\Users\\kdachev\\IdeaProjects\\Devexperts_Training\\Training\\DATA8277.csv");
         File outputFile = new File("C:\\Users\\kdachev\\IdeaProjects\\Devexperts_Training\\Training\\result.csv");
 
         CSVSorterService csvSorterService = new CSVSorterService();
-        csvSorterService.sort(inputFile, outputFile, "count", "area");
+        csvSorterService.sort(inputFile, outputFile, compareOnFields);
     }
 }

@@ -18,7 +18,7 @@ public class CSVSorterService {
 
     private static final Long LINES_READ = 100000L;
 
-    public void sort(File inputFile, File outputFile, String... compareOnField) {
+    public void sort(File inputFile, File outputFile, String... compareOnFields) {
         try (CSVReader csvReader = new CSVReader(new FileReader(inputFile));
              BufferedWriter writer = new BufferedWriter(new FileWriter(outputFile))) {
             List<File> chunks = new ArrayList<>();
@@ -28,7 +28,7 @@ public class CSVSorterService {
             long linesRead = 0L;
 
             String[] header = csvReader.readNext();
-            for (String field : compareOnField) {
+            for (String field : compareOnFields) {
                 if (Arrays.stream(header).map(String::toLowerCase).noneMatch(field.toLowerCase()::equals)) {
                     throw new CustomExceptions("Wrong field supplied");
                 }
@@ -42,7 +42,7 @@ public class CSVSorterService {
                 if (students.size() >= LINES_READ) {
                     chunks.add(File.createTempFile("chunk" + chunkIndex, ".csv"));
                     try (BufferedWriter chunkWriter = new BufferedWriter(new FileWriter(chunks.get(chunkIndex)))) {
-                        students.sort(getComparator(compareOnField));
+                        students.sort(getComparator(compareOnFields));
                         for (Student sortedStudent : students) {
                             writeToFile(chunkWriter, sortedStudent);
                             chunkWriter.newLine();
@@ -58,7 +58,7 @@ public class CSVSorterService {
             if (!students.isEmpty()) {
                 chunks.add(File.createTempFile("chunk" + chunkIndex, ".csv"));
                 try (BufferedWriter chunkWriter = new BufferedWriter(new FileWriter(chunks.get(chunkIndex)))) {
-                    students.sort(getComparator(compareOnField));
+                    students.sort(getComparator(compareOnFields));
                     for (Student sortedStudent : students) {
                         writeToFile(chunkWriter, sortedStudent);
                         chunkWriter.newLine();
@@ -81,7 +81,7 @@ public class CSVSorterService {
 
             for (int i = 0; i < linesRead; i++) {
                 int writeNext = 0;
-                Student temp = firstStudentFromChunks.stream().min(getComparator(compareOnField)).orElseThrow();
+                Student temp = firstStudentFromChunks.stream().min(getComparator(compareOnFields)).orElseThrow();
                 for (int j = 0; j < firstStudentFromChunks.size(); j++) {
                     if (firstStudentFromChunks.get(j) == temp) {
                         writeNext = j;
