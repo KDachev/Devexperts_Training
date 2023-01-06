@@ -4,6 +4,7 @@ import com.opencsv.CSVReader;
 import com.opencsv.exceptions.CsvValidationException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.example.model.CustomExceptions;
 import org.example.model.Student;
 
 import java.io.*;
@@ -16,7 +17,7 @@ public class CSVSorterService {
 
     private static final Long LINES_READ = 100000L;
 
-    public void sort(File inputFile, File outputFile) {
+    public void sort(File inputFile, File outputFile, String compareOnField) {
         try (CSVReader csvReader = new CSVReader(new FileReader(inputFile));
              BufferedWriter writer = new BufferedWriter(new FileWriter(outputFile))) {
             List<File> chunks = new ArrayList<>();
@@ -34,7 +35,7 @@ public class CSVSorterService {
                 if (students.size() >= LINES_READ) {
                     chunks.add(File.createTempFile("chunk" + chunkIndex, ".csv"));
                     try (BufferedWriter chunkWriter = new BufferedWriter(new FileWriter(chunks.get(chunkIndex)))) {
-                        students.sort(Comparator.comparing(Student::getCount));
+                        students.sort(getComparator(compareOnField));
                         for (Student sortedStudent : students) {
                             writeToFile(chunkWriter, sortedStudent);
                             chunkWriter.newLine();
@@ -50,7 +51,7 @@ public class CSVSorterService {
             if (!students.isEmpty()) {
                 chunks.add(File.createTempFile("chunk" + chunkIndex, ".csv"));
                 try (BufferedWriter chunkWriter = new BufferedWriter(new FileWriter(chunks.get(chunkIndex)))) {
-                    students.sort(Comparator.comparing(Student::getCount));
+                    students.sort(getComparator(compareOnField));
                     for (Student sortedStudent : students) {
                         writeToFile(chunkWriter, sortedStudent);
                         chunkWriter.newLine();
@@ -75,13 +76,12 @@ public class CSVSorterService {
                 Long minValue = Long.MAX_VALUE;
                 int writeNext = 0;
 
+                Student temp = firstStudentFromChunks.stream().min(getComparator(compareOnField)).orElseThrow();
                 for (int j = 0; j < firstStudentFromChunks.size(); j++) {
-                    if (firstStudentFromChunks.get(j).getCount() < minValue) {
+                    if (firstStudentFromChunks.get(j) == temp) {
                         writeNext = j;
-                        minValue = firstStudentFromChunks.get(j).getCount();
                     }
                 }
-                Student temp = firstStudentFromChunks.get(writeNext);
                 writeToFile(writer, temp);
                 writer.newLine();
 
@@ -101,7 +101,9 @@ public class CSVSorterService {
         } catch (IOException e) {
             logger.error("There was an IOException with message " + e.getMessage());
         } catch (CsvValidationException e) {
-            logger.error("There was an CsvValidationException with message " + e.getMessage());
+            logger.error("There was a CsvValidationException with message " + e.getMessage());
+        } catch (CustomExceptions e) {
+            logger.error("There was a CustomException with message " + e.getMessage());
         }
     }
 
@@ -110,7 +112,25 @@ public class CSVSorterService {
                 + student.getAge() + CSV_SEPARATOR
                 + student.getEthnic() + CSV_SEPARATOR
                 + student.getSex() + CSV_SEPARATOR
-                + student.getAge() + CSV_SEPARATOR
+                + student.getArea() + CSV_SEPARATOR
                 + student.getCount());
+    }
+
+    private Comparator<Student> getComparator(String field) throws CustomExceptions {
+        switch (field.toLowerCase()){
+            case "year" :
+                return (Comparator.comparing(Student::getYear));
+            case "age" :
+                return (Comparator.comparingInt(Student::getAge));
+            case "ethnic" :
+                return (Comparator.comparing(Student::getEthnic));
+            case "sex" :
+                return (Comparator.comparing(Student::getSex));
+            case "area" :
+                return (Comparator.comparingLong(Student::getArea));
+            case "count" :
+                return (Comparator.comparingLong(Student::getCount));
+        }
+        throw new CustomExceptions("Wrong field supplied");
     }
 }
