@@ -80,9 +80,7 @@ public class CSVSorterService {
             }
 
             for (int i = 0; i < linesRead; i++) {
-                Long minValue = Long.MAX_VALUE;
                 int writeNext = 0;
-
                 Student temp = firstStudentFromChunks.stream().min(getComparator(compareOnField)).orElseThrow();
                 for (int j = 0; j < firstStudentFromChunks.size(); j++) {
                     if (firstStudentFromChunks.get(j) == temp) {
