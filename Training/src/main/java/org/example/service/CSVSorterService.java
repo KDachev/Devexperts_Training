@@ -29,7 +29,6 @@ public class CSVSorterService {
             while (csvReader.peek() != null) {
                 Student student = new Student(csvReader.readNext());
                 students.add(student);
-
                 linesRead++;
 
                 if (students.size() >= LINES_READ) {
@@ -97,8 +96,9 @@ public class CSVSorterService {
                     chunkReaders.get(writeNext).close();
                     chunkReaders.remove(writeNext);
                     firstStudentFromChunks.remove(writeNext);
-                    if(chunks.get(writeNext).delete())
+                    if(chunks.get(writeNext).delete()) {
                         chunks.remove(writeNext);
+                    }
                 }
             }
         } catch (FileNotFoundException e) {
