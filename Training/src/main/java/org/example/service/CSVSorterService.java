@@ -33,16 +33,13 @@ public class CSVSorterService {
 
                 if (students.size() >= LINES_READ) {
                     chunks.add(File.createTempFile("chunk" + chunkIndex, ".csv"));
-
                     try (BufferedWriter chunkWriter = new BufferedWriter(new FileWriter(chunks.get(chunkIndex)))) {
                         students.sort(Comparator.comparing(Student::getCount));
-
                         for (Student sortedStudent : students) {
                             writeToFile(chunkWriter, sortedStudent);
                             chunkWriter.newLine();
                         }
                     }
-
                     chunkReaders.add(new CSVReader(new FileReader(chunks.get(chunkIndex))));
                     students.clear();
                     chunkIndex++;
@@ -52,10 +49,8 @@ public class CSVSorterService {
             // Sort and write the remaining lines
             if (!students.isEmpty()) {
                 chunks.add(File.createTempFile("chunk" + chunkIndex, ".csv"));
-
                 try (BufferedWriter chunkWriter = new BufferedWriter(new FileWriter(chunks.get(chunkIndex)))) {
                     students.sort(Comparator.comparing(Student::getCount));
-
                     for (Student sortedStudent : students) {
                         writeToFile(chunkWriter, sortedStudent);
                         chunkWriter.newLine();
@@ -66,7 +61,8 @@ public class CSVSorterService {
             for(int i = 0; i < header.length - 1; i++){
                 writer.write(header[i] + CSV_SEPARATOR);
             }
-            writer.write(header[header.length - 1] + "\n");
+            writer.write(header[header.length - 1]);
+            writer.newLine();
 
             chunkReaders.add(new CSVReader(new FileReader(chunks.get(chunkIndex))));
             List<Student> firstStudentFromChunks = new ArrayList<>();
@@ -87,12 +83,11 @@ public class CSVSorterService {
                 }
                 Student temp = firstStudentFromChunks.get(writeNext);
                 writeToFile(writer, temp);
-                writer.write("\n");
+                writer.newLine();
 
                 if (chunkReaders.get(writeNext).peek() != null) {
                     firstStudentFromChunks.set(writeNext, new Student(chunkReaders.get(writeNext).readNext()));
-                }
-                else {
+                } else {
                     chunkReaders.get(writeNext).close();
                     chunkReaders.remove(writeNext);
                     firstStudentFromChunks.remove(writeNext);
