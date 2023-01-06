@@ -4,6 +4,7 @@ import com.opencsv.CSVReader;
 import com.opencsv.exceptions.CsvValidationException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.example.model.CustomComparator;
 import org.example.model.CustomExceptions;
 import org.example.model.Student;
 
@@ -17,7 +18,7 @@ public class CSVSorterService {
 
     private static final Long LINES_READ = 100000L;
 
-    public void sort(File inputFile, File outputFile, String compareOnField) {
+    public void sort(File inputFile, File outputFile, String... compareOnField) {
         try (CSVReader csvReader = new CSVReader(new FileReader(inputFile));
              BufferedWriter writer = new BufferedWriter(new FileWriter(outputFile))) {
             List<File> chunks = new ArrayList<>();
@@ -25,7 +26,13 @@ public class CSVSorterService {
             List<Student> students = new ArrayList<>();
             int chunkIndex = 0;
             long linesRead = 0L;
+
             String[] header = csvReader.readNext();
+            for (String field : compareOnField) {
+                if (Arrays.stream(header).map(String::toLowerCase).noneMatch(field.toLowerCase()::equals)) {
+                    throw new CustomExceptions("Wrong field supplied");
+                }
+            }
 
             while (csvReader.peek() != null) {
                 Student student = new Student(csvReader.readNext());
@@ -99,11 +106,11 @@ public class CSVSorterService {
         } catch (FileNotFoundException e) {
             logger.error("File wasn't found!");
         } catch (IOException e) {
-            logger.error("There was an IOException with message " + e.getMessage());
+            logger.error("There was an IOException with message: " + e.getMessage());
         } catch (CsvValidationException e) {
-            logger.error("There was a CsvValidationException with message " + e.getMessage());
+            logger.error("There was a CsvValidationException with message: " + e.getMessage());
         } catch (CustomExceptions e) {
-            logger.error("There was a CustomException with message " + e.getMessage());
+            logger.error("There was a CustomException with message: " + e.getMessage());
         }
     }
 
@@ -116,21 +123,30 @@ public class CSVSorterService {
                 + student.getCount());
     }
 
-    private Comparator<Student> getComparator(String field) throws CustomExceptions {
-        switch (field.toLowerCase()){
-            case "year" :
-                return (Comparator.comparing(Student::getYear));
-            case "age" :
-                return (Comparator.comparingInt(Student::getAge));
-            case "ethnic" :
-                return (Comparator.comparing(Student::getEthnic));
-            case "sex" :
-                return (Comparator.comparing(Student::getSex));
-            case "area" :
-                return (Comparator.comparingLong(Student::getArea));
-            case "count" :
-                return (Comparator.comparingLong(Student::getCount));
+    private Comparator<Student> getComparator(String... fields) throws CustomExceptions {
+        Comparator<Student> comparator = new CustomComparator<>();
+        for (String field : fields) {
+            switch (field.toLowerCase()) {
+                case "year":
+                    comparator = comparator.thenComparing(Student::getYear);
+                    break;
+                case "age":
+                    comparator = comparator.thenComparing(Student::getAge);
+                    break;
+                case "ethnic":
+                    comparator = comparator.thenComparing(Student::getEthnic);
+                    break;
+                case "sex":
+                    comparator = comparator.thenComparing(Student::getSex);
+                    break;
+                case "area":
+                    comparator = comparator.thenComparing(Student::getArea);
+                    break;
+                case "count":
+                    comparator = comparator.thenComparing(Student::getCount);
+                    break;
+            }
         }
-        throw new CustomExceptions("Wrong field supplied");
+        return comparator;
     }
 }
