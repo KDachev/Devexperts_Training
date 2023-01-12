@@ -100,7 +100,8 @@ public class CSVSorterService {
     }
 
     private void writeToFile(Writer writer, Student student) throws IOException {
-        writer.write(student.getYear() + CSV_SEPARATOR
+        writer.write(student.getId() + CSV_SEPARATOR
+                + student.getYear() + CSV_SEPARATOR
                 + student.getAge() + CSV_SEPARATOR
                 + student.getEthnic() + CSV_SEPARATOR
                 + student.getSex() + CSV_SEPARATOR

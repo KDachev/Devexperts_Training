@@ -10,6 +10,8 @@ import lombok.Setter;
 @AllArgsConstructor
 @NoArgsConstructor
 public class Student{
+    private Long id;
+
     private String year;
 
     private Integer age;
@@ -38,7 +40,8 @@ public class Student{
         if(!(o instanceof Student))
             return false;
         Student other = (Student)o;
-        return year.equals(other.getYear())
+        return id.equals(other.getId())
+                || year.equals(other.getYear())
                 || age.equals(other.getAge())
                 || ethnic.equals(other.getEthnic())
                 || sex.equals(other.sex)
@@ -49,6 +52,9 @@ public class Student{
     @Override
     public final int hashCode() {
         int result = 17;
+        if (id != null) {
+            result = 31 * result + id.hashCode();
+        }
         if (year != null) {
             result = 31 * result + year.hashCode();
         }
