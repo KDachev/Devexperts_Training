@@ -39,7 +39,7 @@ public class CSVSorterService {
                 students.add(student);
                 linesRead++;
 
-                if (students.size() >= LINES_READ) {
+                if (students.size() >= LINES_READ || csvReader.peek() == null) {
                     chunks.add(File.createTempFile("chunk" + chunkIndex, ".csv"));
                     try (BufferedWriter chunkWriter = new BufferedWriter(new FileWriter(chunks.get(chunkIndex)))) {
                         students.sort(getComparator(compareOnFields));
@@ -54,25 +54,12 @@ public class CSVSorterService {
                 }
             }
 
-            // Sort and write the remaining lines
-            if (!students.isEmpty()) {
-                chunks.add(File.createTempFile("chunk" + chunkIndex, ".csv"));
-                try (BufferedWriter chunkWriter = new BufferedWriter(new FileWriter(chunks.get(chunkIndex)))) {
-                    students.sort(getComparator(compareOnFields));
-                    for (Student sortedStudent : students) {
-                        writeToFile(chunkWriter, sortedStudent);
-                        chunkWriter.newLine();
-                    }
-                }
-            }
-
             for(int i = 0; i < header.length - 1; i++){
                 writer.write(header[i] + CSV_SEPARATOR);
             }
             writer.write(header[header.length - 1]);
             writer.newLine();
 
-            chunkReaders.add(new CSVReader(new FileReader(chunks.get(chunkIndex))));
             List<Student> firstStudentFromChunks = new ArrayList<>();
             for (int y = 0; y < chunks.size(); y++) {
                 Student student = new Student(chunkReaders.get(y).readNext());
