@@ -16,7 +16,7 @@ public class CSVSorterService {
     private static final Logger logger = LogManager.getLogger(CSVSorterService.class);
     private static final String CSV_SEPARATOR = ",";
 
-    private static final Long LINES_READ = 100000L;
+    private static final Long MAX_LINES_READ = 100000L;
 
     public void sort(File inputFile, File outputFile, String... compareOnFields) {
         List<CSVReader> chunkReaders = new ArrayList<>();
@@ -39,7 +39,7 @@ public class CSVSorterService {
                 students.add(student);
                 linesRead++;
 
-                if (students.size() >= LINES_READ || csvReader.peek() == null) {
+                if (students.size() >= MAX_LINES_READ || csvReader.peek() == null) {
                     chunks.add(File.createTempFile("chunk" + chunkIndex, ".csv"));
                     try (BufferedWriter chunkWriter = new BufferedWriter(new FileWriter(chunks.get(chunkIndex)))) {
                         students.sort(getComparator(compareOnFields));
@@ -67,13 +67,8 @@ public class CSVSorterService {
             }
 
             for (int i = 0; i < linesRead; i++) {
-                int writeNext = 0;
                 Student temp = firstStudentFromChunks.stream().min(getComparator(compareOnFields)).orElseThrow();
-                for (int j = 0; j < firstStudentFromChunks.size(); j++) {
-                    if (firstStudentFromChunks.get(j) == temp) {
-                        writeNext = j;
-                    }
-                }
+                int writeNext = firstStudentFromChunks.indexOf(temp);
                 writeToFile(writer, temp);
                 writer.newLine();
 

@@ -25,12 +25,13 @@ public class Student{
     private Long count;
 
     public Student(String[] fields){
-        year = fields[0];
-        age = Integer.parseInt(fields[1]);
-        ethnic = fields[2];
-        sex = fields[3];
-        area = Long.parseLong(fields[4]);
-        count = Long.parseLong(fields[5]);
+        id = Long.parseLong(fields[0]);
+        year = fields[1];
+        age = Integer.parseInt(fields[2]);
+        ethnic = fields[3];
+        sex = fields[4];
+        area = Long.parseLong(fields[5]);
+        count = Long.parseLong(fields[6]);
     }
 
     @Override
@@ -41,12 +42,12 @@ public class Student{
             return false;
         Student other = (Student)o;
         return id.equals(other.getId())
-                || year.equals(other.getYear())
-                || age.equals(other.getAge())
-                || ethnic.equals(other.getEthnic())
-                || sex.equals(other.sex)
-                || area.equals(other.getArea())
-                || count.equals(other.getCount());
+                && year.equals(other.getYear())
+                && age.equals(other.getAge())
+                && ethnic.equals(other.getEthnic())
+                && sex.equals(other.sex)
+                && area.equals(other.getArea())
+                && count.equals(other.getCount());
     }
 
     @Override
