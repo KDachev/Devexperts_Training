@@ -19,10 +19,10 @@ public class CSVSorterService {
     private static final Long LINES_READ = 100000L;
 
     public void sort(File inputFile, File outputFile, String... compareOnFields) {
+        List<CSVReader> chunkReaders = new ArrayList<>();
         try (CSVReader csvReader = new CSVReader(new FileReader(inputFile));
              BufferedWriter writer = new BufferedWriter(new FileWriter(outputFile))) {
             List<File> chunks = new ArrayList<>();
-            List<CSVReader> chunkReaders = new ArrayList<>();
             List<Student> students = new ArrayList<>();
             int chunkIndex = 0;
             long linesRead = 0L;
@@ -54,7 +54,7 @@ public class CSVSorterService {
                 }
             }
 
-            for(int i = 0; i < header.length - 1; i++){
+            for (int i = 0; i < header.length - 1; i++) {
                 writer.write(header[i] + CSV_SEPARATOR);
             }
             writer.write(header[header.length - 1]);
@@ -83,7 +83,7 @@ public class CSVSorterService {
                     chunkReaders.get(writeNext).close();
                     chunkReaders.remove(writeNext);
                     firstStudentFromChunks.remove(writeNext);
-                    if(chunks.get(writeNext).delete()) {
+                    if (chunks.get(writeNext).delete()) {
                         chunks.remove(writeNext);
                     }
                 }
@@ -96,6 +96,16 @@ public class CSVSorterService {
             logger.error("There was a CsvValidationException with message: " + e.getMessage());
         } catch (CustomExceptions e) {
             logger.error("There was a CustomException with message: " + e.getMessage());
+        } finally {
+            for(CSVReader csvReader : chunkReaders){
+                if(csvReader != null){
+                    try {
+                        csvReader.close();
+                    } catch (IOException e){
+                        logger.error("There was an IOException with message: " + e.getMessage());
+                    }
+                }
+            }
         }
     }
 
