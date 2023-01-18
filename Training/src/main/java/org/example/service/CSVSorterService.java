@@ -54,10 +54,9 @@ public class CSVSorterService {
                 }
             }
 
-            for (int i = 0; i < header.length - 1; i++) {
+            for (int i = 0; i < header.length; i++) {
                 writer.write(header[i] + CSV_SEPARATOR);
             }
-            writer.write(header[header.length - 1]);
             writer.newLine();
 
             List<Student> firstStudentFromChunks = new ArrayList<>();
