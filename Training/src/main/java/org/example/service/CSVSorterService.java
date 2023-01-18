@@ -60,8 +60,8 @@ public class CSVSorterService {
             writer.newLine();
 
             List<Student> firstStudentFromChunks = new ArrayList<>();
-            for (int y = 0; y < chunks.size(); y++) {
-                Student student = new Student(chunkReaders.get(y).readNext());
+            for (CSVReader chunkReader : chunkReaders) {
+                Student student = new Student(chunkReader.readNext());
                 firstStudentFromChunks.add(student);
             }
 
