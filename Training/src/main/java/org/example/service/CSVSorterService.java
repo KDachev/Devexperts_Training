@@ -54,8 +54,8 @@ public class CSVSorterService {
                 }
             }
 
-            for (int i = 0; i < header.length; i++) {
-                writer.write(header[i] + CSV_SEPARATOR);
+            for (String s : header) {
+                writer.write(s + CSV_SEPARATOR);
             }
             writer.newLine();
 
