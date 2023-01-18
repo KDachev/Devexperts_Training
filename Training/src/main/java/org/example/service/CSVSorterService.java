@@ -20,26 +20,27 @@ public class CSVSorterService {
 
     public void sort(File inputFile, File outputFile, String... compareOnFields) {
         List<CSVReader> chunkReaders = new ArrayList<>();
-        try (CSVReader csvReader = new CSVReader(new FileReader(inputFile));
-             BufferedWriter writer = new BufferedWriter(new FileWriter(outputFile))) {
+        try (CSVReader inputCSVReader = new CSVReader(new FileReader(inputFile));
+             BufferedWriter outputFileWriter = new BufferedWriter(new FileWriter(outputFile))) {
             List<File> chunks = new ArrayList<>();
             List<Student> students = new ArrayList<>();
             int chunkIndex = 0;
-            long linesRead = 0L;
+            long linesOfInputFile = 0L;
 
-            String[] header = csvReader.readNext();
+            String[] header = inputCSVReader.readNext();
             for (String field : compareOnFields) {
                 if (Arrays.stream(header).map(String::toLowerCase).noneMatch(field.toLowerCase()::equals)) {
                     throw new CustomExceptions("Wrong field supplied");
                 }
             }
+            linesOfInputFile++;
 
-            while (csvReader.peek() != null) {
-                Student student = new Student(csvReader.readNext());
+            while (inputCSVReader.peek() != null) {
+                Student student = new Student(inputCSVReader.readNext());
                 students.add(student);
-                linesRead++;
+                linesOfInputFile++;
 
-                if (students.size() >= MAX_LINES_READ || csvReader.peek() == null) {
+                if (students.size() >= MAX_LINES_READ || inputCSVReader.peek() == null) {
                     chunks.add(File.createTempFile("chunk" + chunkIndex, ".csv"));
                     try (BufferedWriter chunkWriter = new BufferedWriter(new FileWriter(chunks.get(chunkIndex)))) {
                         students.sort(getComparator(compareOnFields));
@@ -55,30 +56,30 @@ public class CSVSorterService {
             }
 
             for (String s : header) {
-                writer.write(s + CSV_SEPARATOR);
+                outputFileWriter.write(s + CSV_SEPARATOR);
             }
-            writer.newLine();
+            outputFileWriter.newLine();
 
-            List<Student> firstStudentFromChunks = new ArrayList<>();
+            List<Student> firstStudentFromEachChunk = new ArrayList<>();
             for (CSVReader chunkReader : chunkReaders) {
                 Student student = new Student(chunkReader.readNext());
-                firstStudentFromChunks.add(student);
+                firstStudentFromEachChunk.add(student);
             }
 
-            for (int i = 0; i < linesRead; i++) {
-                Student temp = firstStudentFromChunks.stream().min(getComparator(compareOnFields)).orElseThrow();
-                int writeNext = firstStudentFromChunks.indexOf(temp);
-                writeToFile(writer, temp);
-                writer.newLine();
+            for (int i = 0; i < linesOfInputFile; i++) {
+                Student temp = firstStudentFromEachChunk.stream().min(getComparator(compareOnFields)).orElseThrow();
+                int indexOfMin = firstStudentFromEachChunk.indexOf(temp);
+                writeToFile(outputFileWriter, temp);
+                outputFileWriter.newLine();
 
-                if (chunkReaders.get(writeNext).peek() != null) {
-                    firstStudentFromChunks.set(writeNext, new Student(chunkReaders.get(writeNext).readNext()));
+                if (chunkReaders.get(indexOfMin).peek() != null) {
+                    firstStudentFromEachChunk.set(indexOfMin, new Student(chunkReaders.get(indexOfMin).readNext()));
                 } else {
-                    chunkReaders.get(writeNext).close();
-                    chunkReaders.remove(writeNext);
-                    firstStudentFromChunks.remove(writeNext);
-                    if (chunks.get(writeNext).delete()) {
-                        chunks.remove(writeNext);
+                    chunkReaders.get(indexOfMin).close();
+                    chunkReaders.remove(indexOfMin);
+                    firstStudentFromEachChunk.remove(indexOfMin);
+                    if (chunks.get(indexOfMin).delete()) {
+                        chunks.remove(indexOfMin);
                     }
                 }
             }
