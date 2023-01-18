@@ -33,7 +33,6 @@ public class CSVSorterService {
                     throw new CustomExceptions("Wrong field supplied");
                 }
             }
-            linesOfInputFile++;
 
             while (inputCSVReader.peek() != null) {
                 Student student = new Student(inputCSVReader.readNext());
