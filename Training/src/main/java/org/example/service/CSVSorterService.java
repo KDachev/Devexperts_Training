@@ -22,6 +22,7 @@ public class CSVSorterService {
         List<CSVReader> chunkReaders = new ArrayList<>();
         List<File> chunks = new ArrayList<>();
         List<Student> students = new ArrayList<>();
+
         try (CSVReader inputCSVReader = new CSVReader(new FileReader(inputFile));
              BufferedWriter outputFileWriter = new BufferedWriter(new FileWriter(outputFile))) {
             int chunkIndex = 0;
