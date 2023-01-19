@@ -43,7 +43,7 @@ public class CSVSorterService {
                 if (students.size() >= MAX_LINES_READ || inputCSVReader.peek() == null) {
                     File chunk = File.createTempFile("chunk" + chunkIndex, ".csv");
                     chunks.add(chunk);
-                    try (BufferedWriter chunkWriter = new BufferedWriter(new FileWriter(chunks.get(chunkIndex)))) {
+                    try (BufferedWriter chunkWriter = new BufferedWriter(new FileWriter(chunk))) {
                         students.sort(getComparator(compareOnFields));
                         for (Student sortedStudent : students) {
                             writeToFile(chunkWriter, sortedStudent);
