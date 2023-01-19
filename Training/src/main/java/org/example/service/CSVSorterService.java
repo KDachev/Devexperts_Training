@@ -40,7 +40,8 @@ public class CSVSorterService {
                 linesOfInputFile++;
 
                 if (students.size() >= MAX_LINES_READ || inputCSVReader.peek() == null) {
-                    chunks.add(File.createTempFile("chunk" + chunkIndex, ".csv"));
+                    File chunk = File.createTempFile("chunk" + chunkIndex, ".csv");
+                    chunks.add(chunk);
                     try (BufferedWriter chunkWriter = new BufferedWriter(new FileWriter(chunks.get(chunkIndex)))) {
                         students.sort(getComparator(compareOnFields));
                         for (Student sortedStudent : students) {
@@ -48,7 +49,7 @@ public class CSVSorterService {
                             chunkWriter.newLine();
                         }
                     }
-                    chunkReaders.add(new CSVReader(new FileReader(chunks.get(chunkIndex))));
+                    chunkReaders.add(new CSVReader(new FileReader(chunk)));
                     students.clear();
                     chunkIndex++;
                 }
