@@ -20,10 +20,10 @@ public class CSVSorterService {
 
     public void sort(File inputFile, File outputFile, String... compareOnFields) {
         List<CSVReader> chunkReaders = new ArrayList<>();
+        List<File> chunks = new ArrayList<>();
+        List<Student> students = new ArrayList<>();
         try (CSVReader inputCSVReader = new CSVReader(new FileReader(inputFile));
              BufferedWriter outputFileWriter = new BufferedWriter(new FileWriter(outputFile))) {
-            List<File> chunks = new ArrayList<>();
-            List<Student> students = new ArrayList<>();
             int chunkIndex = 0;
             long linesOfInputFile = 0L;
 
